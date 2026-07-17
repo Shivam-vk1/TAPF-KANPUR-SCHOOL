@@ -128,9 +128,24 @@
   .school-card .top-row{
     display:flex; justify-content:space-between; align-items:flex-start; gap:8px;
   }
+  .school-card .name-row{
+    display:flex; align-items:center; gap:7px; flex:1; min-width:0;
+  }
   .school-card .name{
     font-size:14.5px; font-weight:600; line-height:1.35; color:var(--text);
   }
+  .school-card .name-btn{
+    background:none; border:none; padding:0; text-align:left; cursor:pointer;
+    font-family:'Inter',sans-serif; color:var(--text);
+  }
+  .school-card .name-btn:hover .name{ color:var(--amber); text-decoration:underline; }
+  .maps-btn{
+    flex-shrink:0; width:28px; height:28px; border-radius:50%;
+    background:var(--bg-raised-2); border:1px solid var(--line); color:var(--amber);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .maps-btn:hover{ background:var(--amber); color:#1a1408; border-color:var(--amber); }
+  .maps-btn svg{ width:14px; height:14px; }
   .school-card .route-tag{
     flex-shrink:0; font-size:10.5px; padding:2px 7px; border-radius:5px;
     font-family:'IBM Plex Mono',monospace; font-weight:600; white-space:nowrap;
@@ -163,12 +178,12 @@
 
   /* ---------- Detail Drawer ---------- */
   #overlay{
-    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:90;
+    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:5000;
     opacity:0; pointer-events:none; transition:opacity .2s;
   }
   #overlay.show{ opacity:1; pointer-events:auto; }
   #drawer{
-    position:fixed; z-index:91; background:var(--bg-raised); box-shadow:var(--shadow);
+    position:fixed; z-index:5001; background:var(--bg-raised); box-shadow:var(--shadow);
     right:0; top:0; bottom:0; width:420px; max-width:92vw;
     transform:translateX(100%); transition:transform .25s ease;
     display:flex; flex-direction:column; border-left:1px solid var(--line);
@@ -215,11 +230,16 @@
   .addr-block{ font-size:13.5px; color:var(--text-dim); line-height:1.5; }
 
   @media (max-width: 860px){
-    .layout{ height:calc(100vh - 158px); flex-direction:column; }
+    .layout{ height:calc(100vh - 158px); height:calc(100dvh - 158px); flex-direction:column; }
     #listPane{ width:100%; border-right:none; display:block; }
     #mapPane{ width:100%; }
     #listPane.hide, #mapPane.hide{ display:none; }
-    #drawer{ width:100%; max-width:100%; top:auto; height:82vh; border-radius:16px 16px 0 0; border-left:none; border-top:1px solid var(--line); transform:translateY(100%); }
+    #drawer{
+      width:100%; max-width:100%; top:auto; left:0;
+      height:85vh; height:85dvh; max-height:85dvh;
+      border-radius:16px 16px 0 0; border-left:none; border-top:1px solid var(--line);
+      transform:translateY(100%);
+    }
     #drawer.show{ transform:translateY(0); }
   }
 
