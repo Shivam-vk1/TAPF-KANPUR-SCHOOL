@@ -49,9 +49,11 @@ SCHOOLS.forEach(s => {
 });
 
 function popupHtml(s){
+  const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}`;
   return `<b>${escapeHtml(s.schoolName)}</b><br>
     <span class="mono">${escapeHtml(s.routeName)} · ${escapeHtml(s.nodeCode)}</span><br>
-    ${escapeHtml(s.address || 'Address not listed')}`;
+    ${escapeHtml(s.address || 'Address not listed')}<br>
+    <a href="${gmapsUrl}" target="_blank" rel="noopener" style="color:#e8a33d; font-weight:600; display:inline-block; margin-top:6px;">Open in Google Maps &rarr;</a>`;
 }
 
 function escapeHtml(str){
@@ -109,7 +111,14 @@ function renderList(){
   listPane.innerHTML = state.filtered.map(s => `
     <div class="school-card" tabindex="0" data-id="${s.id}">
       <div class="top-row">
-        <div class="name">${escapeHtml(s.schoolName)}</div>
+        <div class="name-row">
+          <button class="name-btn" data-id="${s.id}" data-role="open-drawer">
+            <span class="name">${escapeHtml(s.schoolName)}</span>
+          </button>
+        </div>
+        <button class="maps-btn" data-id="${s.id}" data-role="open-maps" title="Open in Google Maps" aria-label="Open in Google Maps">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 5 5.5 5 9.5c0 5.5 7 12.5 7 12.5s7-7 7-12.5C19 5.5 16 2 12 2z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+        </button>
         <div class="route-tag" style="background:${routeColor(s.routeName)}22; color:${routeColor(s.routeName)}; border:1px solid ${routeColor(s.routeName)}55;">${escapeHtml(s.routeName)}</div>
       </div>
       <div class="meta">
@@ -122,8 +131,18 @@ function renderList(){
   `).join('');
   listPane.querySelectorAll('.school-card').forEach(card => {
     const id = Number(card.dataset.id);
-    card.addEventListener('click', () => openDrawer(id));
-    card.addEventListener('keydown', e => { if (e.key === 'Enter') openDrawer(id); });
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('[data-role="open-maps"]')) return; // handled separately
+      openDrawer(id);
+    });
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.target.closest('[data-role="open-maps"]')) openDrawer(id); });
+  });
+  listPane.querySelectorAll('[data-role="open-maps"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const s = SCHOOLS.find(x => x.id === Number(btn.dataset.id));
+      if (s) window.open(`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}`, '_blank', 'noopener');
+    });
   });
 }
 
