@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>MDM Route Finder · Kanpur Kitchen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  :root{
+    --bg: #12211a;
+    --bg-raised: #1a2e24;
+    --bg-raised-2: #21382b;
+    --line: #2c4436;
+    --text: #f2ede0;
+    --text-dim: #b9c4bb;
+    --text-faint: #7f9188;
+    --amber: #e8a33d;
+    --amber-dim: #c98a2e;
+    --sage: #7fb298;
+    --danger: #d16257;
+    --radius: 10px;
+    --shadow: 0 8px 28px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overscroll-behavior:none;
+  }
+  ::selection{ background:var(--amber); color:#1a1a1a; }
+
+  .mono{ font-family:'IBM Plex Mono', ui-monospace, monospace; letter-spacing:0.01em; }
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky; top:0; z-index:40;
+    background:linear-gradient(180deg, var(--bg) 0%, var(--bg) 85%, transparent);
+    padding:14px 16px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:12px;
+  }
+  .brand .mark{
+    font-family:'Fraunces', serif; font-weight:700; font-size:20px; color:var(--amber);
+    letter-spacing:0.01em;
+  }
+  .brand .sub{
+    font-size:11.5px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace;
+    text-transform:uppercase; letter-spacing:0.08em;
+  }
+  .search-row{
+    display:flex; gap:8px; align-items:center;
+  }
+  .search-box{
+    flex:1; position:relative;
+  }
+  .search-box input{
+    width:100%; background:var(--bg-raised); border:1px solid var(--line);
+    color:var(--text); border-radius:var(--radius); padding:11px 14px 11px 38px;
+    font-size:15px; font-family:'Inter',sans-serif; outline:none;
+  }
+  .search-box input:focus{ border-color:var(--amber); box-shadow:0 0 0 3px rgba(232,163,61,0.15); }
+  .search-box svg{
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    width:16px; height:16px; stroke:var(--text-faint); pointer-events:none;
+  }
+  .search-box .clear-btn{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    background:none; border:none; color:var(--text-faint); cursor:pointer;
+    font-size:18px; padding:4px 6px; display:none; line-height:1;
+  }
+  .search-box .clear-btn.show{ display:block; }
+
+  .view-toggle{
+    display:flex; background:var(--bg-raised); border:1px solid var(--line);
+    border-radius:var(--radius); overflow:hidden; flex-shrink:0;
+  }
+  .view-toggle button{
+    background:none; border:none; color:var(--text-dim); padding:10px 14px;
+    font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .view-toggle button.active{ background:var(--amber); color:#1a1408; }
+
+  .chips{
+    display:flex; gap:6px; overflow-x:auto; margin-top:10px; padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  .chips::-webkit-scrollbar{ display:none; }
+  .chip{
+    flex-shrink:0; border:1px solid var(--line); background:var(--bg-raised);
+    color:var(--text-dim); padding:6px 12px; border-radius:999px; font-size:12.5px;
+    cursor:pointer; white-space:nowrap; font-family:'Inter',sans-serif; font-weight:500;
+    display:flex; align-items:center; gap:6px; transition:background .15s,color .15s,border-color .15s;
+  }
+  .chip .dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .chip.active{ background:var(--bg-raised-2); border-color:var(--amber); color:var(--text); }
+  .chip:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  .result-count{
+    font-size:11.5px; color:var(--text-faint); margin-top:8px; font-family:'IBM Plex Mono',monospace;
+  }
+  .result-count b{ color:var(--sage); }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    display:flex; height:calc(100vh - 132px);
+  }
+  #listPane{
+    width:380px; flex-shrink:0; overflow-y:auto; border-right:1px solid var(--line);
+    background:var(--bg);
+  }
+  #mapPane{ flex:1; position:relative; background:#0d1912; }
+  #map{ width:100%; height:100%; }
+
+  /* ---------- List ---------- */
+  .school-card{
+    padding:13px 16px; border-bottom:1px solid var(--line); cursor:pointer;
+    transition:background .12s;
+  }
+  .school-card:hover, .school-card:focus-visible{ background:var(--bg-raised); }
+  .school-card .top-row{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:8px;
+  }
+  .school-card .name{
+    font-size:14.5px; font-weight:600; line-height:1.35; color:var(--text);
+  }
+  .school-card .route-tag{
+    flex-shrink:0; font-size:10.5px; padding:2px 7px; border-radius:5px;
+    font-family:'IBM Plex Mono',monospace; font-weight:600; white-space:nowrap;
+  }
+  .school-card .meta{
+    margin-top:5px; font-size:12px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace;
+    display:flex; gap:10px; flex-wrap:wrap;
+  }
+  .school-card .addr{
+    margin-top:4px; font-size:12.5px; color:var(--text-dim); line-height:1.4;
+  }
+  .empty-state{
+    padding:60px 24px; text-align:center; color:var(--text-faint);
+  }
+  .empty-state .big{ font-family:'Fraunces',serif; font-size:17px; color:var(--text-dim); margin-bottom:6px;}
+
+  /* ---------- Leaflet tweaks ---------- */
+  .leaflet-popup-content-wrapper{
+    background:var(--bg-raised); color:var(--text); border-radius:8px;
+  }
+  .leaflet-popup-tip{ background:var(--bg-raised); }
+  .leaflet-popup-content{ font-family:'Inter',sans-serif; font-size:13px; margin:10px 12px; }
+  .leaflet-popup-content b{ font-family:'Fraunces',serif; font-size:14px; }
+  .leaflet-container a.leaflet-popup-close-button{ color:var(--text-faint); }
+  .school-marker-label{
+    background:var(--bg-raised); border:1px solid var(--line); color:var(--text);
+    font-family:'IBM Plex Mono',monospace; font-size:10px; padding:1px 5px; border-radius:4px;
+    white-space:nowrap;
+  }
+
+  /* ---------- Detail Drawer ---------- */
+  #overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:90;
+    opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  #overlay.show{ opacity:1; pointer-events:auto; }
+  #drawer{
+    position:fixed; z-index:91; background:var(--bg-raised); box-shadow:var(--shadow);
+    right:0; top:0; bottom:0; width:420px; max-width:92vw;
+    transform:translateX(100%); transition:transform .25s ease;
+    display:flex; flex-direction:column; border-left:1px solid var(--line);
+  }
+  #drawer.show{ transform:translateX(0); }
+  .drawer-head{
+    padding:18px 20px 14px; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+  }
+  .drawer-head h2{
+    font-family:'Fraunces',serif; font-size:19px; font-weight:600; margin:0 0 6px; line-height:1.3;
+  }
+  .drawer-head .route-pill{
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px;
+    font-family:'IBM Plex Mono',monospace; padding:3px 9px; border-radius:999px; font-weight:600;
+  }
+  .drawer-head .close-btn{
+    background:var(--bg-raised-2); border:1px solid var(--line); color:var(--text-dim);
+    width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:16px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .drawer-body{ padding:16px 20px 24px; overflow-y:auto; flex:1; }
+  .field-group{ margin-bottom:18px; }
+  .field-group .label{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint);
+    font-family:'IBM Plex Mono',monospace; margin-bottom:6px;
+  }
+  .field-row{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding:9px 0; border-bottom:1px solid var(--line);
+  }
+  .field-row:last-child{ border-bottom:none; }
+  .field-row .k{ font-size:12.5px; color:var(--text-dim); }
+  .field-row .v{ font-size:13.5px; color:var(--text); font-family:'IBM Plex Mono',monospace; text-align:right; }
+  .action-row{ display:flex; gap:8px; margin-top:4px; flex-wrap:wrap; }
+  .action-btn{
+    flex:1; min-width:120px; display:flex; align-items:center; justify-content:center; gap:7px;
+    padding:11px 10px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;
+    font-family:'Inter',sans-serif; border:1px solid var(--line); color:var(--text);
+    background:var(--bg-raised-2); cursor:pointer;
+  }
+  .action-btn.primary{ background:var(--amber); color:#1a1408; border-color:var(--amber); }
+  .action-btn svg{ width:15px; height:15px; }
+  .addr-block{ font-size:13.5px; color:var(--text-dim); line-height:1.5; }
+
+  @media (max-width: 860px){
+    .layout{ height:calc(100vh - 158px); flex-direction:column; }
+    #listPane{ width:100%; border-right:none; display:block; }
+    #mapPane{ width:100%; }
+    #listPane.hide, #mapPane.hide{ display:none; }
+    #drawer{ width:100%; max-width:100%; top:auto; height:82vh; border-radius:16px 16px 0 0; border-left:none; border-top:1px solid var(--line); transform:translateY(100%); }
+    #drawer.show{ transform:translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="mark">MDM Route Finder</span>
+    <span class="sub">Kanpur Kitchen · TAPF</span>
+  </div>
+  <div class="search-row">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="School, UDISE, node code, SPOC, area..." autocomplete="off">
+      <button class="clear-btn" id="clearBtn">&times;</button>
+    </div>
+    <div class="view-toggle" id="viewToggle">
+      <button data-view="list" class="active">List</button>
+      <button data-view="map">Map</button>
+    </div>
+  </div>
+  <div class="chips" id="routeChips"></div>
+  <div class="result-count" id="resultCount"></div>
+</header>
+
+<div class="layout">
+  <div id="listPane"></div>
+  <div id="mapPane"><div id="map"></div></div>
+</div>
+
+<div id="overlay"></div>
+<div id="drawer"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
