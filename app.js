@@ -25,8 +25,8 @@ const ROUTE_NAMES = [...new Set(SCHOOLS.map(s => s.routeName))].sort();
 
 // ---------- Map init ----------
 const map = L.map('map', { zoomControl: true, attributionControl: true }).setView([26.45, 80.28], 12);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap &copy; CARTO',
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   maxZoom: 19
 }).addTo(map);
 
@@ -103,8 +103,8 @@ const listPane = document.getElementById('listPane');
 function renderList(){
   if (state.filtered.length === 0){
     listPane.innerHTML = `<div class="empty-state">
-      <div class="big">Koi school nahi mila</div>
-      Search ya route filter badal kar dekhein.
+      <div class="big">No schools found</div>
+      Try a different search term or route filter.
     </div>`;
     return;
   }
@@ -296,3 +296,28 @@ clearBtn.addEventListener('click', () => {
 // ---------- Init ----------
 applyFilters();
 if (window.innerWidth > 860) setTimeout(() => map.invalidateSize(), 50);
+
+// ---------- First-run notice (shown once per device, remembered via localStorage) ----------
+const NOTICE_KEY = 'mdmRouteFinder_notice_v1_seen';
+const noticeOverlay = document.getElementById('noticeOverlay');
+const noticeModal = document.getElementById('noticeModal');
+
+function dismissNotice(){
+  noticeOverlay.classList.remove('show');
+  noticeModal.classList.remove('show');
+  try { localStorage.setItem(NOTICE_KEY, '1'); } catch (e) { /* storage unavailable, ignore */ }
+}
+
+try {
+  if (!localStorage.getItem(NOTICE_KEY)) {
+    noticeOverlay.classList.add('show');
+    noticeModal.classList.add('show');
+  }
+} catch (e) {
+  // localStorage blocked (e.g. private mode) — show notice anyway, just won't remember dismissal
+  noticeOverlay.classList.add('show');
+  noticeModal.classList.add('show');
+}
+
+document.getElementById('noticeCloseBtn').addEventListener('click', dismissNotice);
+noticeOverlay.addEventListener('click', dismissNotice);
