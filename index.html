@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -118,6 +118,12 @@
   }
   #mapPane{ flex:1; position:relative; background:#0d1912; }
   #map{ width:100%; height:100%; }
+  #map .leaflet-tile-pane{
+    filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9) saturate(0.7);
+  }
+  #map .leaflet-marker-pane, #map .leaflet-popup-pane, #map .leaflet-overlay-pane{
+    filter: none;
+  }
 
   /* ---------- List ---------- */
   .school-card{
@@ -246,6 +252,43 @@
   @media (prefers-reduced-motion: reduce){
     *{ transition:none !important; }
   }
+
+  /* ---------- First-run notice ---------- */
+  #noticeOverlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6000;
+    opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  #noticeOverlay.show{ opacity:1; pointer-events:auto; }
+  #noticeModal{
+    position:fixed; z-index:6001; left:50%; top:50%;
+    transform:translate(-50%, -46%) scale(0.97);
+    width:420px; max-width:90vw; max-height:82vh; overflow-y:auto;
+    background:var(--bg-raised); border:1px solid var(--line); border-radius:14px;
+    box-shadow:var(--shadow); padding:22px 22px 18px;
+    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+  }
+  #noticeModal.show{ opacity:1; pointer-events:auto; transform:translate(-50%, -50%) scale(1); }
+  .notice-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .notice-badge{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700; letter-spacing:0.06em;
+    background:var(--amber); color:#1a1408; padding:3px 9px; border-radius:999px;
+  }
+  .notice-head h2{ font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin:0; }
+  .notice-body p{ font-size:13.5px; color:var(--text-dim); line-height:1.55; margin:0 0 16px; }
+  .notice-body b{ color:var(--sage); }
+  .notice-tips{ display:flex; flex-direction:column; gap:12px; margin-bottom:6px; }
+  .tip-row{ display:flex; gap:10px; align-items:flex-start; }
+  .tip-num{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%; background:var(--bg-raised-2);
+    border:1px solid var(--line); color:var(--amber); font-family:'IBM Plex Mono',monospace;
+    font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+  .tip-row span:last-child{ font-size:13px; color:var(--text-dim); line-height:1.5; padding-top:2px; }
+  .notice-btn{
+    width:100%; margin-top:18px; padding:12px; border-radius:8px; border:none;
+    background:var(--amber); color:#1a1408; font-family:'Inter',sans-serif; font-weight:700;
+    font-size:14px; cursor:pointer;
+  }
 </style>
 </head>
 <body>
@@ -277,6 +320,28 @@
 
 <div id="overlay"></div>
 <div id="drawer"></div>
+
+<div id="noticeOverlay"></div>
+<div id="noticeModal">
+  <div class="notice-head">
+    <span class="notice-badge">Beta</span>
+    <h2>Welcome</h2>
+  </div>
+  <div class="notice-body">
+    <p>This app is currently in <b>beta</b>. You may occasionally notice a small bug or UI glitch — these are usually fixed in the next update, so no need to worry.</p>
+    <div class="notice-tips">
+      <div class="tip-row">
+        <span class="tip-num">1</span>
+        <span>Use the search box to find a school by name, UDISE code, node code, or area — or pick a route from the chips above to filter by route.</span>
+      </div>
+      <div class="tip-row">
+        <span class="tip-num">2</span>
+        <span>Tap on any school's name to open its full profile — address, contacts, and one-tap Directions and Call buttons.</span>
+      </div>
+    </div>
+  </div>
+  <button id="noticeCloseBtn" class="notice-btn">Got it</button>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="data.js"></script>
