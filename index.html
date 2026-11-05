@@ -2,349 +2,108 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>MDM Route Finder · Kanpur Kitchen</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MDM Route Finder · Launcher</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #12211a;
-    --bg-raised: #1a2e24;
-    --bg-raised-2: #21382b;
-    --line: #2c4436;
-    --text: #f2ede0;
-    --text-dim: #b9c4bb;
-    --text-faint: #7f9188;
-    --amber: #e8a33d;
-    --amber-dim: #c98a2e;
-    --sage: #7fb298;
-    --danger: #d16257;
-    --radius: 10px;
-    --shadow: 0 8px 28px rgba(0,0,0,0.35);
+    --bg:#f6f7f4; --card:#ffffff; --card2:#fbf6ea; --line:#dfe4dc;
+    --text:#16231c; --dim:#4b5a52; --faint:#7a877f;
+    --amber:#c77d0a; --sage:#2f8a5f; --danger:#c4443a;
   }
   *{box-sizing:border-box;}
-  html,body{height:100%;}
   body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Inter',system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;
-    overscroll-behavior:none;
+    margin:0; min-height:100vh; min-height:100dvh; background:var(--bg); color:var(--text);
+    font-family:'Inter',system-ui,sans-serif; -webkit-font-smoothing:antialiased;
+    display:flex; justify-content:center; padding:40px 16px;
   }
-  ::selection{ background:var(--amber); color:#1a1a1a; }
+  main{ width:100%; max-width:520px; }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 8px;
+  }
+  h1{ font-family:'Fraunces',serif; font-weight:700; font-size:34px; line-height:1.15; margin:0 0 10px; color:var(--amber); }
+  .lead{ color:var(--dim); font-size:15px; line-height:1.55; margin:0 0 28px; }
 
-  .mono{ font-family:'IBM Plex Mono', ui-monospace, monospace; letter-spacing:0.01em; }
+  .links{ display:flex; flex-direction:column; gap:12px; margin-bottom:32px; }
+  .link{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    text-decoration:none; color:var(--text); background:var(--card);
+    border:1px solid var(--line); border-radius:12px; padding:18px 18px;
+    transition:border-color .15s, background .15s;
+  }
+  .link:hover{ border-color:var(--amber); background:var(--card2); }
+  .link:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+  .link.primary{ background:var(--amber); border-color:var(--amber); color:#fff; }
+  .link.primary:hover{ background:#b06f08; }
+  .link .name{ font-weight:600; font-size:16px; }
+  .link .host{ font-family:'IBM Plex Mono',monospace; font-size:12px; opacity:.75; margin-top:3px; word-break:break-all; }
+  .link .arrow{ font-size:20px; flex-shrink:0; }
+  .status{
+    display:inline-flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; font-weight:500;
+  }
+  .status i{ width:8px; height:8px; border-radius:50%; background:var(--faint); display:inline-block; }
+  .status.ok i{ background:var(--sage); } .status.bad i{ background:var(--danger); }
+  .primary .status i{ box-shadow:0 0 0 1.5px rgba(255,255,255,.7); }
 
-  /* ---------- Header ---------- */
-  header{
-    position:sticky; top:0; z-index:40;
-    background:linear-gradient(180deg, var(--bg) 0%, var(--bg) 85%, transparent);
-    padding:14px 16px 10px;
-    border-bottom:1px solid var(--line);
-  }
-  .brand{
-    display:flex; align-items:baseline; gap:10px; margin-bottom:12px;
-  }
-  .brand .mark{
-    font-family:'Fraunces', serif; font-weight:700; font-size:20px; color:var(--amber);
-    letter-spacing:0.01em;
-  }
-  .brand .sub{
-    font-size:11.5px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace;
-    text-transform:uppercase; letter-spacing:0.08em;
-  }
-  .search-row{
-    display:flex; gap:8px; align-items:center;
-  }
-  .search-box{
-    flex:1; position:relative;
-  }
-  .search-box input{
-    width:100%; background:var(--bg-raised); border:1px solid var(--line);
-    color:var(--text); border-radius:var(--radius); padding:11px 14px 11px 38px;
-    font-size:15px; font-family:'Inter',sans-serif; outline:none;
-  }
-  .search-box input:focus{ border-color:var(--amber); box-shadow:0 0 0 3px rgba(232,163,61,0.15); }
-  .search-box svg{
-    position:absolute; left:12px; top:50%; transform:translateY(-50%);
-    width:16px; height:16px; stroke:var(--text-faint); pointer-events:none;
-  }
-  .search-box .clear-btn{
-    position:absolute; right:8px; top:50%; transform:translateY(-50%);
-    background:none; border:none; color:var(--text-faint); cursor:pointer;
-    font-size:18px; padding:4px 6px; display:none; line-height:1;
-  }
-  .search-box .clear-btn.show{ display:block; }
-
-  .view-toggle{
-    display:flex; background:var(--bg-raised); border:1px solid var(--line);
-    border-radius:var(--radius); overflow:hidden; flex-shrink:0;
-  }
-  .view-toggle button{
-    background:none; border:none; color:var(--text-dim); padding:10px 14px;
-    font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;
-  }
-  .view-toggle button.active{ background:var(--amber); color:#1a1408; }
-
-  .chips{
-    display:flex; gap:6px; overflow-x:auto; margin-top:10px; padding-bottom:2px;
-    scrollbar-width:none;
-  }
-  .chips::-webkit-scrollbar{ display:none; }
-  .chip{
-    flex-shrink:0; border:1px solid var(--line); background:var(--bg-raised);
-    color:var(--text-dim); padding:6px 12px; border-radius:999px; font-size:12.5px;
-    cursor:pointer; white-space:nowrap; font-family:'Inter',sans-serif; font-weight:500;
-    display:flex; align-items:center; gap:6px; transition:background .15s,color .15s,border-color .15s;
-  }
-  .chip .dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .chip.active{ background:var(--bg-raised-2); border-color:var(--amber); color:var(--text); }
-  .chip:focus-visible, input:focus-visible, button:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
-
-  .result-count{
-    font-size:11.5px; color:var(--text-faint); margin-top:8px; font-family:'IBM Plex Mono',monospace;
-  }
-  .result-count b{ color:var(--sage); }
-
-  /* ---------- Layout ---------- */
-  .layout{
-    display:flex; height:calc(100vh - 132px);
-  }
-  #listPane{
-    width:380px; flex-shrink:0; overflow-y:auto; border-right:1px solid var(--line);
-    background:var(--bg);
-  }
-  #mapPane{ flex:1; position:relative; background:#0d1912; }
-  #map{ width:100%; height:100%; }
-  #map .leaflet-tile-pane{
-    filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9) saturate(0.7);
-  }
-  #map .leaflet-marker-pane, #map .leaflet-popup-pane, #map .leaflet-overlay-pane{
-    filter: none;
-  }
-
-  /* ---------- List ---------- */
-  .school-card{
-    padding:13px 16px; border-bottom:1px solid var(--line); cursor:pointer;
-    transition:background .12s;
-  }
-  .school-card:hover, .school-card:focus-visible{ background:var(--bg-raised); }
-  .school-card .top-row{
-    display:flex; justify-content:space-between; align-items:flex-start; gap:8px;
-  }
-  .school-card .name-row{
-    display:flex; align-items:center; gap:7px; flex:1; min-width:0;
-  }
-  .school-card .name{
-    font-size:14.5px; font-weight:600; line-height:1.35; color:var(--text);
-  }
-  .school-card .name-btn{
-    background:none; border:none; padding:0; text-align:left; cursor:pointer;
-    font-family:'Inter',sans-serif; color:var(--text);
-  }
-  .school-card .name-btn:hover .name{ color:var(--amber); text-decoration:underline; }
-  .maps-btn{
-    flex-shrink:0; width:28px; height:28px; border-radius:50%;
-    background:var(--bg-raised-2); border:1px solid var(--line); color:var(--amber);
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-  }
-  .maps-btn:hover{ background:var(--amber); color:#1a1408; border-color:var(--amber); }
-  .maps-btn svg{ width:14px; height:14px; }
-  .school-card .route-tag{
-    flex-shrink:0; font-size:10.5px; padding:2px 7px; border-radius:5px;
-    font-family:'IBM Plex Mono',monospace; font-weight:600; white-space:nowrap;
-  }
-  .school-card .meta{
-    margin-top:5px; font-size:12px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace;
-    display:flex; gap:10px; flex-wrap:wrap;
-  }
-  .school-card .addr{
-    margin-top:4px; font-size:12.5px; color:var(--text-dim); line-height:1.4;
-  }
-  .empty-state{
-    padding:60px 24px; text-align:center; color:var(--text-faint);
-  }
-  .empty-state .big{ font-family:'Fraunces',serif; font-size:17px; color:var(--text-dim); margin-bottom:6px;}
-
-  /* ---------- Leaflet tweaks ---------- */
-  .leaflet-popup-content-wrapper{
-    background:var(--bg-raised); color:var(--text); border-radius:8px;
-  }
-  .leaflet-popup-tip{ background:var(--bg-raised); }
-  .leaflet-popup-content{ font-family:'Inter',sans-serif; font-size:13px; margin:10px 12px; }
-  .leaflet-popup-content b{ font-family:'Fraunces',serif; font-size:14px; }
-  .leaflet-container a.leaflet-popup-close-button{ color:var(--text-faint); }
-  .school-marker-label{
-    background:var(--bg-raised); border:1px solid var(--line); color:var(--text);
-    font-family:'IBM Plex Mono',monospace; font-size:10px; padding:1px 5px; border-radius:4px;
-    white-space:nowrap;
-  }
-
-  /* ---------- Detail Drawer ---------- */
-  #overlay{
-    position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:5000;
-    opacity:0; pointer-events:none; transition:opacity .2s;
-  }
-  #overlay.show{ opacity:1; pointer-events:auto; }
-  #drawer{
-    position:fixed; z-index:5001; background:var(--bg-raised); box-shadow:var(--shadow);
-    right:0; top:0; bottom:0; width:420px; max-width:92vw;
-    transform:translateX(100%); transition:transform .25s ease;
-    display:flex; flex-direction:column; border-left:1px solid var(--line);
-  }
-  #drawer.show{ transform:translateX(0); }
-  .drawer-head{
-    padding:18px 20px 14px; border-bottom:1px solid var(--line);
-    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-  }
-  .drawer-head h2{
-    font-family:'Fraunces',serif; font-size:19px; font-weight:600; margin:0 0 6px; line-height:1.3;
-  }
-  .drawer-head .route-pill{
-    display:inline-flex; align-items:center; gap:6px; font-size:11.5px;
-    font-family:'IBM Plex Mono',monospace; padding:3px 9px; border-radius:999px; font-weight:600;
-  }
-  .drawer-head .close-btn{
-    background:var(--bg-raised-2); border:1px solid var(--line); color:var(--text-dim);
-    width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:16px; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .drawer-body{ padding:16px 20px 24px; overflow-y:auto; flex:1; }
-  .field-group{ margin-bottom:18px; }
-  .field-group .label{
-    font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint);
-    font-family:'IBM Plex Mono',monospace; margin-bottom:6px;
-  }
-  .field-row{
-    display:flex; justify-content:space-between; align-items:center; gap:10px;
-    padding:9px 0; border-bottom:1px solid var(--line);
-  }
-  .field-row:last-child{ border-bottom:none; }
-  .field-row .k{ font-size:12.5px; color:var(--text-dim); }
-  .field-row .v{ font-size:13.5px; color:var(--text); font-family:'IBM Plex Mono',monospace; text-align:right; }
-  .action-row{ display:flex; gap:8px; margin-top:4px; flex-wrap:wrap; }
-  .action-btn{
-    flex:1; min-width:120px; display:flex; align-items:center; justify-content:center; gap:7px;
-    padding:11px 10px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;
-    font-family:'Inter',sans-serif; border:1px solid var(--line); color:var(--text);
-    background:var(--bg-raised-2); cursor:pointer;
-  }
-  .action-btn.primary{ background:var(--amber); color:#1a1408; border-color:var(--amber); }
-  .action-btn svg{ width:15px; height:15px; }
-  .addr-block{ font-size:13.5px; color:var(--text-dim); line-height:1.5; }
-
-  @media (max-width: 860px){
-    .layout{ height:calc(100vh - 158px); height:calc(100dvh - 158px); flex-direction:column; }
-    #listPane{ width:100%; border-right:none; display:block; }
-    #mapPane{ width:100%; }
-    #listPane.hide, #mapPane.hide{ display:none; }
-    #drawer{
-      width:100%; max-width:100%; top:auto; left:0;
-      height:85vh; height:85dvh; max-height:85dvh;
-      border-radius:16px 16px 0 0; border-left:none; border-top:1px solid var(--line);
-      transform:translateY(100%);
-    }
-    #drawer.show{ transform:translateY(0); }
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ transition:none !important; }
-  }
-
-  /* ---------- First-run notice ---------- */
-  #noticeOverlay{
-    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6000;
-    opacity:0; pointer-events:none; transition:opacity .2s;
-  }
-  #noticeOverlay.show{ opacity:1; pointer-events:auto; }
-  #noticeModal{
-    position:fixed; z-index:6001; left:50%; top:50%;
-    transform:translate(-50%, -46%) scale(0.97);
-    width:420px; max-width:90vw; max-height:82vh; overflow-y:auto;
-    background:var(--bg-raised); border:1px solid var(--line); border-radius:14px;
-    box-shadow:var(--shadow); padding:22px 22px 18px;
-    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
-  }
-  #noticeModal.show{ opacity:1; pointer-events:auto; transform:translate(-50%, -50%) scale(1); }
-  .notice-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-  .notice-badge{
-    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700; letter-spacing:0.06em;
-    background:var(--amber); color:#1a1408; padding:3px 9px; border-radius:999px;
-  }
-  .notice-head h2{ font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin:0; }
-  .notice-body p{ font-size:13.5px; color:var(--text-dim); line-height:1.55; margin:0 0 16px; }
-  .notice-body b{ color:var(--sage); }
-  .notice-tips{ display:flex; flex-direction:column; gap:12px; margin-bottom:6px; }
-  .tip-row{ display:flex; gap:10px; align-items:flex-start; }
-  .tip-num{
-    flex-shrink:0; width:22px; height:22px; border-radius:50%; background:var(--bg-raised-2);
-    border:1px solid var(--line); color:var(--amber); font-family:'IBM Plex Mono',monospace;
-    font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;
-  }
-  .tip-row span:last-child{ font-size:13px; color:var(--text-dim); line-height:1.5; padding-top:2px; }
-  .notice-btn{
-    width:100%; margin-top:18px; padding:12px; border-radius:8px; border:none;
-    background:var(--amber); color:#1a1408; font-family:'Inter',sans-serif; font-weight:700;
-    font-size:14px; cursor:pointer;
-  }
+  h2{ font-family:'Fraunces',serif; font-size:19px; margin:0 0 12px; }
+  ul{ margin:0; padding:0; list-style:none; border-top:1px solid var(--line); }
+  li{ padding:12px 0 12px 22px; border-bottom:1px solid var(--line); position:relative; color:var(--dim); font-size:14px; line-height:1.55; }
+  li::before{ content:""; position:absolute; left:2px; top:20px; width:7px; height:7px; border-radius:50%; background:var(--amber); }
+  li b{ color:var(--text); font-weight:600; }
+  footer{ margin-top:28px; font-size:12px; color:var(--faint); }
+  @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
 </style>
 </head>
 <body>
+<main>
+  <p class="eyebrow">Kanpur Kitchen · TAPF</p>
+  <h1>MDM Route Finder</h1>
+  <p class="lead">Find any school's location, route and contacts in one tap. Both links open the same app.</p>
 
-<header>
-  <div class="brand">
-    <span class="mark">MDM Route Finder</span>
-    <span class="sub">Kanpur Kitchen · TAPF</span>
-  </div>
-  <div class="search-row">
-    <div class="search-box">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="searchInput" type="text" placeholder="School, UDISE, node code, SPOC, area..." autocomplete="off">
-      <button class="clear-btn" id="clearBtn">&times;</button>
-    </div>
-    <div class="view-toggle" id="viewToggle">
-      <button data-view="list" class="active">List</button>
-      <button data-view="map">Map</button>
-    </div>
-  </div>
-  <div class="chips" id="routeChips"></div>
-  <div class="result-count" id="resultCount"></div>
-</header>
-
-<div class="layout">
-  <div id="listPane"></div>
-  <div id="mapPane"><div id="map"></div></div>
-</div>
-
-<div id="overlay"></div>
-<div id="drawer"></div>
-
-<div id="noticeOverlay"></div>
-<div id="noticeModal">
-  <div class="notice-head">
-    <span class="notice-badge">Beta</span>
-    <h2>Welcome</h2>
-  </div>
-  <div class="notice-body">
-    <p>This app is currently in <b>beta</b>. You may occasionally notice a small bug or UI glitch — these are usually fixed in the next update, so no need to worry.</p>
-    <div class="notice-tips">
-      <div class="tip-row">
-        <span class="tip-num">1</span>
-        <span>Use the search box to find a school by name, UDISE code, node code, or area — or pick a route from the chips above to filter by route.</span>
+  <div class="links">
+    <a class="link primary" href="https://mdm-route-finder.vercel.app/" id="a1" rel="noopener">
+      <div>
+        <div class="name">Open App · Server 1</div>
+        <div class="host">mdm-route-finder.vercel.app</div>
+        <div class="status" id="s1"><i></i><span>Checking…</span></div>
       </div>
-      <div class="tip-row">
-        <span class="tip-num">2</span>
-        <span>Tap on any school's name to open its full profile — address, contacts, and one-tap Directions and Call buttons.</span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="link" href="https://shivam-vk1.github.io/MDM-Route-Finder/" id="a2" rel="noopener">
+      <div>
+        <div class="name">Open App · Server 2 (Backup)</div>
+        <div class="host">shivam-vk1.github.io/MDM-Route-Finder</div>
+        <div class="status" id="s2"><i></i><span>Checking…</span></div>
       </div>
-    </div>
+      <span class="arrow">→</span>
+    </a>
   </div>
-  <button id="noticeCloseBtn" class="notice-btn">Got it</button>
-</div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data.js"></script>
-<script src="app.js"></script>
+  <h2>How to use</h2>
+  <ul>
+    <li><b>Try Server 1 first.</b> If it fails or is slow, use Server 2.</li>
+    <li><b>Search</b> by school name, UDISE, node code or area.</li>
+    <li><b>Tap a school</b> for full profile, Directions and Call.</li>
+    <li><b>Map</b> shows schools by route color.</li>
+    <li>App is in <b>beta</b>; small bugs will be fixed soon.</li>
+  </ul>
+  
+</main>
+
+<script>
+  // Reachability check: a no-cors request resolves on any response, rejects only on network failure/timeout.
+  function check(url, id){
+    const el = document.getElementById(id), label = el.querySelector('span');
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 6000);
+    fetch(url, { mode:'no-cors', cache:'no-store', signal:ctrl.signal })
+      .then(() => { el.className = 'status ok'; label.textContent = 'Online'; })
+      .catch(() => { el.className = 'status bad'; label.textContent = 'Not reachable, try the other server'; })
+      .finally(() => clearTimeout(timer));
+  }
+  check('https://mdm-route-finder.vercel.app/', 's1');
+  check('https://shivam-vk1.github.io/MDM-Route-Finder/', 's2');
+</script>
 </body>
 </html>
