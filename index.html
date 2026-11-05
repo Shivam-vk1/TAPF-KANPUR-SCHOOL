@@ -54,6 +54,9 @@
   li{ padding:12px 0 12px 22px; border-bottom:1px solid var(--line); position:relative; color:var(--dim); font-size:14px; line-height:1.55; }
   li::before{ content:""; position:absolute; left:2px; top:20px; width:7px; height:7px; border-radius:50%; background:var(--amber); }
   li b{ color:var(--text); font-weight:600; }
+  .mini-btn{ display:inline-block; margin-left:6px; padding:2px 10px; border-radius:999px; background:#1f7a4d; color:#fff; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; }
+  .mini-btn:hover{ background:#176540; }
+  .mini-btn:focus-visible{ outline:2px solid #1f7a4d; outline-offset:2px; }
   footer{ margin-top:32px; padding-top:16px; border-top:1px solid var(--line); text-align:center; font-size:13px; color:var(--faint); }
   footer b{ color:var(--text); font-weight:600; }
   @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
@@ -89,7 +92,7 @@
 
   <h2>How to use</h2>
   <ul>
-    <li><b>Try Server 1 first.</b> If it fails or is slow, use Server 2.</li>
+    <li><b>Try Server 1 first.</b> If it fails or is slow, use Server 2. <a class="mini-btn" href="https://akshayapatra-my.sharepoint.com/:p:/g/personal/shivam_vishwakarma_akshayapatra_org/IQAMo3nqPJjFTb610atOZea-ASHAkyB9Y2zHKFejpBmo0iw?e=A5XIri" target="_blank" rel="noopener">How to use (PPT)</a></li>
     <li><b>Search</b> by school name, UDISE, node code or area.</li>
     <li><b>Tap a school</b> for full profile, Directions and Call.</li>
     <li><b>Map</b> shows schools by route color.</li>
