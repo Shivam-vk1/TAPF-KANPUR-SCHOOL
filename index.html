@@ -18,12 +18,13 @@
     display:flex; justify-content:center; padding:40px 16px;
   }
   main{ width:100%; max-width:520px; }
-  .logo{ display:block; height:72px; width:auto; max-width:100%; margin:0 0 18px; border-radius:8px; }
+  .title-row{ display:flex; align-items:center; gap:12px; margin:0 0 10px; }
+  .logo{ display:block; height:40px; width:auto; flex-shrink:0; }
   .eyebrow{
     font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.08em;
     text-transform:uppercase; color:var(--faint); margin:0 0 8px;
   }
-  h1{ font-family:'Fraunces',serif; font-weight:700; font-size:34px; line-height:1.15; margin:0 0 10px; color:var(--amber); }
+  h1{ font-family:'Fraunces',serif; font-weight:700; font-size:34px; line-height:1.15; margin:0; color:var(--amber); }
   .lead{ color:var(--dim); font-size:15px; line-height:1.55; margin:0 0 28px; }
 
   .links{ display:flex; flex-direction:column; gap:12px; margin-bottom:32px; }
@@ -60,9 +61,11 @@
 </head>
 <body>
 <main>
-  <img class="logo" src="https://i.ibb.co/PZJY9FRv/images.jpg" alt="Logo" onerror="this.style.display='none'">
   <p class="eyebrow">Kanpur Kitchen · TAPF</p>
-  <h1>MDM Route Finder</h1>
+  <div class="title-row">
+    <img class="logo" src="https://i.ibb.co/PZJY9FRv/images.jpg" alt="Akshaya Patra" onerror="this.style.display='none'">
+    <h1>MDM Route Finder</h1>
+  </div>
   <p class="lead">Find any school's location, route and contacts in one tap. Both links open the same app.</p>
 
   <div class="links">
