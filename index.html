@@ -3,118 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MDM Route Finder · Launcher</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#f6f7f4; --card:#ffffff; --card2:#eaf5ee; --line:#dfe4dc;
-    --text:#16231c; --dim:#4b5a52; --faint:#7a877f;
-    --amber:#c77d0a; --sage:#2f8a5f; --danger:#c4443a;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0; min-height:100vh; min-height:100dvh; background:var(--bg); color:var(--text);
-    font-family:'Inter',system-ui,sans-serif; -webkit-font-smoothing:antialiased;
-    display:flex; justify-content:center; padding:40px 16px;
-  }
-  main{ width:100%; max-width:520px; }
-  .title-row{ display:flex; align-items:center; gap:12px; margin:0 0 10px; }
-  .logo{ display:block; height:40px; width:auto; flex-shrink:0; }
-  .eyebrow{
-    font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.08em;
-    text-transform:uppercase; color:var(--faint); margin:0 0 8px;
-  }
-  h1{ font-family:'Fraunces',serif; font-weight:700; font-size:34px; line-height:1.15; margin:0; color:var(--amber); }
-  .lead{ color:var(--dim); font-size:15px; line-height:1.55; margin:0 0 28px; }
-
-  .links{ display:flex; flex-direction:column; gap:12px; margin-bottom:32px; }
-  .link{
-    display:flex; align-items:center; justify-content:space-between; gap:14px;
-    text-decoration:none; color:var(--text); background:var(--card);
-    border:1px solid var(--line); border-radius:12px; padding:18px 18px;
-    transition:border-color .15s, background .15s;
-  }
-  .link{ background:#2f9a62; border-color:#2f9a62; color:#fff; }
-  .link:hover{ background:#27885a; border-color:#27885a; }
-  .link:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
-  .link.primary{ background:#1f7a4d; border-color:#1f7a4d; color:#fff; }
-  .link.primary:hover{ background:#176540; border-color:#176540; }
-  .link .name{ font-weight:600; font-size:16px; }
-  .link .host{ font-family:'IBM Plex Mono',monospace; font-size:12px; opacity:.75; margin-top:3px; word-break:break-all; }
-  .link .arrow{ font-size:20px; flex-shrink:0; }
-  .status{
-    display:inline-flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; font-weight:500;
-  }
-  .status i{ width:8px; height:8px; border-radius:50%; background:var(--faint); display:inline-block; }
-  .status.ok i{ background:#9df0c2; } .status.bad i{ background:#ffb4ac; }
-  .link .status i{ box-shadow:0 0 0 1.5px rgba(255,255,255,.8); }
-
-  h2{ font-family:'Fraunces',serif; font-size:19px; margin:0 0 12px; }
-  ul{ margin:0; padding:0; list-style:none; border-top:1px solid var(--line); }
-  li{ padding:12px 0 12px 22px; border-bottom:1px solid var(--line); position:relative; color:var(--dim); font-size:14px; line-height:1.55; }
-  li::before{ content:""; position:absolute; left:2px; top:20px; width:7px; height:7px; border-radius:50%; background:var(--amber); }
-  li b{ color:var(--text); font-weight:600; }
-  .mini-btn{ display:inline-block; margin-left:6px; padding:2px 10px; border-radius:999px; background:#1f7a4d; color:#fff; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; }
-  .mini-btn:hover{ background:#176540; }
-  .mini-btn:focus-visible{ outline:2px solid #1f7a4d; outline-offset:2px; }
-  footer{ margin-top:32px; padding-top:16px; border-top:1px solid var(--line); text-align:center; font-size:13px; color:var(--faint); }
-  footer b{ color:var(--text); font-weight:600; }
-  @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
-</style>
+<title>MDM Route Finder</title>
+<meta http-equiv="refresh" content="0; url=https://mdm-route-finder.vercel.app/">
+<link rel="canonical" href="https://mdm-route-finder.vercel.app/">
+<script>window.location.replace("https://mdm-route-finder.vercel.app/");</script>
 </head>
 <body>
-<main>
-  <p class="eyebrow">Kanpur Kitchen · TAPF</p>
-  <div class="title-row">
-    <img class="logo" src="https://i.ibb.co/PZJY9FRv/images.jpg" alt="Akshaya Patra" onerror="this.style.display='none'">
-    <h1>MDM Route Finder</h1>
-  </div>
-  <p class="lead">Find any school's location, route and contacts in one tap. Both links open the same app.</p>
-
-  <div class="links">
-    <a class="link primary" href="https://mdm-route-finder.vercel.app/" id="a1" rel="noopener">
-      <div>
-        <div class="name">Open App · Server 1</div>
-        <div class="host">mdm-route-finder.vercel.app</div>
-        <div class="status" id="s1"><i></i><span>Checking…</span></div>
-      </div>
-      <span class="arrow">→</span>
-    </a>
-    <a class="link" href="https://shivam-vk1.github.io/MDM-Route-Finder/" id="a2" rel="noopener">
-      <div>
-        <div class="name">Open App · Server 2 (Backup)</div>
-        <div class="host">shivam-vk1.github.io/MDM-Route-Finder</div>
-        <div class="status" id="s2"><i></i><span>Checking…</span></div>
-      </div>
-      <span class="arrow">→</span>
-    </a>
-  </div>
-
-  <h2>How to use</h2>
-  <ul>
-    <li><b>Try Server 1 first.</b> If it fails or is slow, use Server 2. <a class="mini-btn" href="https://akshayapatra-my.sharepoint.com/:p:/g/personal/shivam_vishwakarma_akshayapatra_org/IQAMo3nqPJjFTb610atOZea-ASHAkyB9Y2zHKFejpBmo0iw?e=A5XIri" target="_blank" rel="noopener">How to use (PPT)</a></li>
-    <li><b>Search</b> by school name, UDISE, node code or area.</li>
-    <li><b>Tap a school</b> for full profile, Directions and Call.</li>
-    <li><b>Map</b> shows schools by route color.</li>
-    <li>App is in <b>beta</b>; small bugs will be fixed soon.</li>
-  </ul>
-  <footer>Created by <b>Shivam Vishwakarma</b></footer>
-  
-</main>
-
-<script>
-  // Reachability check: a no-cors request resolves on any response, rejects only on network failure/timeout.
-  function check(url, id){
-    const el = document.getElementById(id), label = el.querySelector('span');
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 6000);
-    fetch(url, { mode:'no-cors', cache:'no-store', signal:ctrl.signal })
-      .then(() => { el.className = 'status ok'; label.textContent = 'Online'; })
-      .catch(() => { el.className = 'status bad'; label.textContent = 'Not reachable, try the other server'; })
-      .finally(() => clearTimeout(timer));
-  }
-  check('https://mdm-route-finder.vercel.app/', 's1');
-  check('https://shivam-vk1.github.io/MDM-Route-Finder/', 's2');
-</script>
+<p>Redirecting to <a href="https://mdm-route-finder.vercel.app/">MDM Route Finder</a>…</p>
 </body>
 </html>
